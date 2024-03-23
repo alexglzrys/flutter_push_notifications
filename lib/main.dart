@@ -20,6 +20,12 @@ class PushNotificationApp extends StatefulWidget {
 }
 
 class _PushNotificationAppState extends State<PushNotificationApp> {
+  // instancia para acceder al estado del Navigator, y icontrolar la nevegación desde cualquier parte de la aplicación
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  // instancia para acceder al estado del ScaffoldMessager y mostrar mensajes emergentes desde cualquier parte de la aplicación
+  final GlobalKey<ScaffoldMessengerState> scaffoldKey =
+      GlobalKey<ScaffoldMessengerState>();
+
   @override
   void initState() {
     // Suscribirse o escuchar la emisión de eventos que se transmiten en el controlador de flujo messageStream al momento que se inicialice mi aplicación
@@ -27,6 +33,12 @@ class _PushNotificationAppState extends State<PushNotificationApp> {
     PushNotificationService.messageStream.listen((message) {
       // Dependiendo el código aquí declarado, nos permitirá reaccionar de forma diferente cuando se recibe una notificación
       print('PushNotificationApp: $message');
+      // Mostrar un snackbar
+      final SnackBar snackBar = SnackBar(content: Text(message));
+      scaffoldKey.currentState!.showSnackBar(snackBar);
+
+      // Navegar a otra pantalla y enviar la carga útil de la notificación como argumentos
+      navigatorKey.currentState!.pushNamed('message', arguments: message);
     });
 
     super.initState();
@@ -38,6 +50,8 @@ class _PushNotificationAppState extends State<PushNotificationApp> {
       debugShowCheckedModeBanner: false,
       title: 'Push Notification App',
       initialRoute: 'home',
+      navigatorKey: navigatorKey, // Navegación
+      scaffoldMessengerKey: scaffoldKey, // Snack
       routes: {
         'home': (_) => const HomeScreen(),
         'message': (_) => const MessageScreen()
